@@ -1,0 +1,143 @@
+{% extends 'base.html' %}
+{% block title %} {{question.title}} {% endblock %}
+{% block body %}
+<div class="container">
+     <div class="col-lg-12 col-sm-12 ">
+        <div class="card hovercard">
+          <div class="card-background">
+              <img class="card-bkimg" alt="" src="http://lorempixel.com/100/100/people/9/">
+          </div>
+          <div class="useravatar">
+            <h1>QAsk.kz</h1>
+          </div>
+          <div class="card-info"> <span class="card-title">The only web service where you can ask, answer and comment <strong>anonymously</strong></span>
+          </div>
+      </div>
+
+      <div class="well">
+        <div class="tab-content">
+          <div class="tab-pane fade in active" id="tab1">
+            <h3>{{question.title}}</h3>
+            <div class="row">
+              <div class="col-md-9">
+                <h4>{{question.body|safe}}</h4>
+                By <strong>{% if question.is_anonym %}Anonym{% else %} {{question.author.name}} {% endif %}</strong>
+              </div>
+              <div class="col-md-3">
+                <h6 class="text-right"><a href="{{url_for('addAnswer', category_id=question.category.id, question_id=question.id)}}">New Answer</a></h6>
+                <h6 class="text-right"><a href="{{url_for('addComment', category_id=question.category.id, question_id=question.id)}}">New Comment</a></h6>
+                {% if user.email==question.author.email %}
+                  <h6 class="text-right"><a href="{{url_for('deleteQuestion', category_id=question.category.id, question_id=question.id)}}">Delete</a></h6>
+                  <h6 class="text-right"><a href="#" data-toggle="modal" data-target="#edit-modal">Edit</a></h6>
+                {% endif %}
+              </div>
+            </div>
+            <hr/>
+            <div>
+              <span class="lead">Answers</span>
+              <br/>
+              <br/>
+
+              {% if is_answering %}
+                <form action="{{url_for('addAnswer', category_id=question.category.id, question_id=question.id)}}" method="POST">
+                  <textarea name="body" style="width:500px;height=200px;">
+                  </textarea>
+                  <br/>
+                  Do you want to answer anonymously?<input type="checkbox" name="is_anonym"/>
+                  <br/>
+                  <input type="submit" value="ADD"/>
+                </form>
+              {% endif %}
+
+              {% if answers and alen > 0 %}
+                {% for answer in answers %}
+                  <div>
+                    <strong>{% if answer.is_anonym %} Anonym {% else %} {{answer.author.name}} {% endif %}</strong> answers...
+                    <h5>
+                      {{answer.body|safe}}
+                    </h5>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div><strong>Oops, there is no answer!</strong></div>
+              {% endif %}
+            </div>
+            <hr/>
+            <div>
+              <span class="lead">Comments</span>
+              <br/>
+              <br/>
+
+
+              {% if is_commenting %}
+                <form action="{{url_for('addComment', category_id=question.category.id, question_id=question.id)}}" method="POST">
+                  <textarea name="body" style="width:500px;height=200px;">
+                  </textarea>
+                  <br/>
+                  Do you want to comment anonymously?<input type="checkbox" name="is_anonym"/>
+                  <br/>
+                  <input type="submit" value="ADD"/>
+                </form>
+              {% endif %}
+
+
+              {% if comments and clen > 0 %}
+                {% for comment in comments %}
+                  <div>
+                    <strong>{% if comment.is_anonym %} Anonym {% else %} {{comment.author.name}} {% endif %}</strong> comments...
+                    <h5>
+                      {{comment.body|safe}}
+                    </h5>
+                  </div>
+                {% endfor %}
+              {% else %}
+                <div><strong>Oops, there is no comment!</strong></div>
+              {% endif %}
+            </div>
+
+          </div>
+        </div>
+      </div>
+    
+    </div>
+    </div>
+
+
+<div class="modal fade" id="edit-modal" tabindex="-1" role="dialog" aria-labelledby="login-modal-label">
+  <div class="modal-dialog" role="document">
+    <div class="modal-content">
+      <div class="modal-header">
+        <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+        <h4 class="modal-title" id="edit-modal-label">Ask a Question</h4>
+      </div>
+      <form action="{{url_for('editQuestion', question_id=question.id)}}" method="POST">
+      {% if user %}
+      {% else %}
+      <p class="lead" style="color:red;">Please, login </p>
+      {% endif %}
+        <div class="modal-body">
+      <div class="form-group">
+        <label for="title-area">Question Title</label>
+          <input type="text" id="title-area" class="form-control" name="title" value="{{question.title}}"/>
+      </div>
+      <div class="form-group">
+        <label for="text-area">Question Body</label>
+          <textarea name="body" id="text-area" class="form-control" style="height=200px;">{{question.body|safe}}</textarea>
+      </div>
+      <div class="form-group">    
+        Do you want to ask anonymously?
+            <input type="checkbox" id="anonym" name="is_anonym"/>
+      </div>
+      </div>
+      <div class="modal-footer">
+        <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+        <button type="submit" class="btn btn-primary">Edit</button>
+      </div>
+
+      </form>
+    </div>
+  </div>
+</div>
+
+
+{% endblock %}
