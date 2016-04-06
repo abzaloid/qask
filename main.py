@@ -120,7 +120,7 @@ def login():
 		user = db.query(Author).filter_by(login=user_login)
 		if user:
 			user = user.first()
-			if bcrypt.check_password_hash(user.password_hash, user_passw):
+			if user and bcrypt.check_password_hash(user.password_hash, user_passw):
 				print 'Yahoo'
 				session['user'] = user_login
 				flash("Login is successful","success")
